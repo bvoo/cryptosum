@@ -22,15 +22,15 @@ export function generatePuzzle(seed, difficultyKey = 'Easy') {
   // 1. Select 'distinct' random values from range [minVal, maxVal]
   const availableValues = [];
   for (let i = minVal; i <= maxVal; i++) availableValues.push(i);
-  
+
   // Shuffle available values
   for (let i = availableValues.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [availableValues[i], availableValues[j]] = [availableValues[j], availableValues[i]];
   }
-  
+
   const selectedValues = availableValues.slice(0, distinct);
-  
+
   // Map values to symbols
   const symbolMap = {};
   selectedValues.forEach((val, idx) => {
@@ -60,12 +60,17 @@ export function generatePuzzle(seed, difficultyKey = 'Easy') {
     colSums.push(sum);
   }
 
+  // Filter symbols to only those present in the grid
+  const usedSymbolsSet = new Set();
+  grid.forEach(row => row.forEach(sym => usedSymbolsSet.add(sym)));
+  const usedSymbols = symbols.filter(s => usedSymbolsSet.has(s));
+
   return {
     grid,
     rowSums,
     colSums,
     symbolMap, // Solution
-    symbols,   // Available symbols to show in legend
+    symbols: usedSymbols,   // Available symbols to show in legend (filtered)
     difficulty: difficultyKey
   };
 }
