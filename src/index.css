@@ -1,0 +1,381 @@
+:root {
+  --bg-color: #f8f9fa;
+  --text-color: #212529;
+  --primary-color: #333;
+  --accent-color: #007bff;
+  --grid-border: #333;
+  --cell-bg: #fff;
+  --cell-size: 60px;
+  --font-main: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header & Controls */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.date-picker {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Tabs */
+.difficulty-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Puzzle Board */
+.puzzle-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.puzzle-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: var(--cell-size) repeat(var(--grid-size), var(--cell-size));
+  gap: 5px;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cell-bg);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.cell.header {
+  background-color: #eee;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+}
+
+.cell.empty {
+  background: none;
+  border: none;
+}
+
+.cell.symbol-cell {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.symbol {
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+.cell-guess {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.8rem;
+  color: blue;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Legend */
+.legend {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+}
+
+.legend h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 1.5rem;
+}
+
+.legend-item input {
+  width: 40px;
+  padding: 5px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Hint Controls */
+.hint-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.hint-controls button {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.hint-controls button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.hint-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint-controls button.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+/* Interactive Hint States */
+.grid-container.picking-hint .cell.symbol-cell {
+  cursor: not-allowed;
+}
+
+.grid-container.picking-hint .cell.symbol-cell.clickable {
+  cursor: pointer;
+  background-color: #e6f3ff;
+  /* Light blue highlight */
+}
+
+.grid-container.picking-hint .cell.symbol-cell.clickable:hover {
+  background-color: #cce5ff;
+}
+
+.cell.revealed .cell-guess {
+  color: #28a745;
+  /* Green for revealed */
+}
+
+.legend-item.revealed-item input {
+  color: #28a745;
+  font-weight: bold;
+  background-color: #f9f9f9;
+}
+
+/* Print Styles */
+.print-layout {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  .print-layout {
+    display: block;
+    width: 100%;
+  }
+
+  .print-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid black;
+    padding-bottom: 10px;
+  }
+
+  .print-header h1 {
+    margin: 0;
+    font-size: 24pt;
+  }
+
+  .print-puzzles {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  .print-section h2 {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    font-size: 14pt;
+  }
+
+  /* Override Grid for Print */
+  .grid-container {
+    gap: 2px;
+    grid-template-columns: 50px repeat(var(--grid-size), 50px);
+  }
+
+  .cell {
+    border: 1px solid black;
+    box-shadow: none;
+    width: 50px;
+    height: 50px;
+    font-size: 20pt;
+  }
+
+  .cell.header {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .hint-controls {
+    display: none;
+  }
+
+  .puzzle-board {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .print-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .print-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18pt;
+  }
+
+  .print-legend-item .underscore {
+    border-bottom: 2px solid black;
+    width: 40px;
+    display: inline-block;
+    color: transparent;
+    /* Hide the underscores if we just want the line, or keep them */
+  }
+
+  .cell-input {
+    display: none;
+  }
+
+  /* Hide interactive legend in print, maybe show a blank one? */
+  .legend {
+    display: none;
+  }
+}
+
+/* Screen only styles for print legend */
+@media screen {
+  .print-legend {
+    display: none;
+  }
+}
