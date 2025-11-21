@@ -161,8 +161,9 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: 400px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .legend h3 {
@@ -174,9 +175,10 @@ body {
 }
 
 .legend-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
 }
 
 .legend-item {
