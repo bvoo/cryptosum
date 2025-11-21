@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) {
+export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false, date, difficulty }) {
     const { grid, rowSums, colSums, symbols, symbolMap } = puzzle;
 
     // Initialize state from localStorage if available
@@ -17,6 +17,14 @@ export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) 
     });
 
     const [isPickingHint, setIsPickingHint] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
+
+    const [secondsElapsed, setSecondsElapsed] = useState(() => {
+        if (!puzzleId) return 0;
+        const saved = localStorage.getItem(`cryptosum-timer-${puzzleId}`);
+        return saved ? parseInt(saved, 10) : 0;
+    });
 
     // Save state when guesses or revealed change
     useEffect(() => {
@@ -28,8 +36,43 @@ export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) 
         }
     }, [guesses, revealed, puzzleId]);
 
+    // Timer Logic
+    useEffect(() => {
+        if (!puzzleId || isComplete || showSolution) return;
+
+        const timerId = setInterval(() => {
+            setSecondsElapsed(prev => {
+                const newVal = prev + 1;
+                localStorage.setItem(`cryptosum-timer-${puzzleId}`, newVal);
+                return newVal;
+            });
+        }, 1000);
+
+        return () => clearInterval(timerId);
+    }, [puzzleId, isComplete, showSolution]);
+
+    // Check for completion
+    useEffect(() => {
+        if (showSolution || isComplete) return;
+
+        const allSymbolsGuessed = symbols.every(s => guesses[s] !== undefined && guesses[s] !== '');
+        if (allSymbolsGuessed) {
+            const allCorrect = symbols.every(s => parseInt(guesses[s]) === symbolMap[s]);
+            if (allCorrect) {
+                setIsComplete(true);
+                setShowCompletionModal(true);
+            }
+        }
+    }, [guesses, symbols, symbolMap, showSolution, isComplete]);
+
+    const formatTime = (totalSeconds) => {
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
     const handleGuessChange = (symbol, value) => {
-        if (revealed.has(symbol)) return; // Cannot change revealed symbols
+        if (revealed.has(symbol) || isComplete) return; // Cannot change revealed symbols or if complete
         if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 9)) {
             setGuesses(prev => ({ ...prev, [symbol]: value }));
         }
@@ -125,11 +168,12 @@ export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) 
             {/* Hint Controls */}
             {!showSolution && (
                 <div className="hint-controls">
-                    <button onClick={handleRandomHint} disabled={revealed.size === symbols.length}>Random Hint</button>
-                    <button onClick={handlePickHint} className={isPickingHint ? 'active' : ''} disabled={revealed.size === symbols.length}>
+                    <div className="timer-display">{formatTime(secondsElapsed)}</div>
+                    <button onClick={handleRandomHint} disabled={revealed.size === symbols.length || isComplete}>Random Hint</button>
+                    <button onClick={handlePickHint} className={isPickingHint ? 'active' : ''} disabled={revealed.size === symbols.length || isComplete}>
                         {isPickingHint ? 'Cancel Pick' : 'Pick Hint'}
                     </button>
-                    <button onClick={handleRevealAll} disabled={revealed.size === symbols.length}>Reveal All</button>
+                    <button onClick={handleRevealAll} disabled={revealed.size === symbols.length || isComplete}>Reveal All</button>
                 </div>
             )}
 
@@ -149,7 +193,7 @@ export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) 
                                     value={guesses[sym] || ''}
                                     onChange={(e) => handleGuessChange(sym, e.target.value)}
                                     placeholder="?"
-                                    readOnly={revealed.has(sym)}
+                                    readOnly={revealed.has(sym) || isComplete}
                                 />
                             </div>
                         ))}
@@ -166,6 +210,29 @@ export default function PuzzleBoard({ puzzle, puzzleId, showSolution = false }) 
                     </div>
                 ))}
             </div>
+
+            {/* Completion Modal */}
+            {showCompletionModal && (
+                <div className="completion-modal-overlay">
+                    <div className="completion-modal">
+                        <h2>Puzzle Completed!</h2>
+                        <p>Great job! You've deciphered all the symbols.</p>
+                        <div className="completion-details">
+                            <p><strong>Date:</strong> {date}</p>
+                            <p><strong>Difficulty:</strong> {difficulty}</p>
+                            <p><strong>Time:</strong> {formatTime(secondsElapsed)}</p>
+                        </div>
+                        <div className="modal-actions">
+                            <button onClick={() => {
+                                const text = `Daily Cryptosum ${date}\nDifficulty: ${difficulty}\nTime: ${formatTime(secondsElapsed)}\nhttps://cryptosum.bvoo.xyz`;
+                                navigator.clipboard.writeText(text);
+                                alert('Copied to clipboard!');
+                            }} className="btn-share">Share</button>
+                            <button onClick={() => setShowCompletionModal(false)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

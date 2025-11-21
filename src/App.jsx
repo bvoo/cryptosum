@@ -47,7 +47,13 @@ function App() {
 
           {puzzle && (
             <div className="puzzle-wrapper">
-              <PuzzleBoard key={`${date}-${difficulty}`} puzzle={puzzle} puzzleId={`${date}-${difficulty}`} />
+              <PuzzleBoard
+                key={`${date}-${difficulty}`}
+                puzzle={puzzle}
+                puzzleId={`${date}-${difficulty}`}
+                date={date}
+                difficulty={difficulty}
+              />
             </div>
           )}
         </main>
